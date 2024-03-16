@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
+from xlsxReader import *
+from itemExtract import *
 
 # Sample data with 10 items
 data = [
@@ -33,6 +35,14 @@ def show_details(event):
     selected_item = tree.selection()[0]
     details = tree.item(selected_item, 'values')[3]
     details_label.config(text=details)
+
+file_path = select_xlsx_file()
+if file_path:  # Check if a file was selected
+    data_list = read_first_table_to_list(file_path)
+else:
+    print("No file was selected.")
+
+extracted_items = process_data_list(data_list)
 
 # Main window
 root = tk.Tk()
