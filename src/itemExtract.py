@@ -1,5 +1,18 @@
 import re
 
+# Function to filter out sub-lists based on a keyword in the first string
+def filter_sublists(sublists, keyword):
+    # return [sublist for sublist in sublists if keyword not in sublist[0]]
+    new_sublists = []
+    for sublist in sublists:
+        if sublist[0] is not None:
+            if keyword not in sublist[0]:
+                new_sublists.append(sublist)
+        elif sublist[1] is not None:
+            new_sublists.append(sublist)
+    return new_sublists
+
+
 # Regular expression to match the specific pattern in the first column
 pattern = r'^\d{18}\s{22}\d{6}$'
 
@@ -13,6 +26,8 @@ def process_data_list(data_list):
         # Check if the first column is not None and matches the pattern
         if (row[0] is not None) and (re.match(pattern, row[0])):
             if collecting:
+                # Using the function to filter out sub-lists containing "SAP" in the first string
+                current_chunk = filter_sublists(current_chunk, "SAP")
                 # If already collecting, it means a new pattern has started, save the current_chunk
                 extracted_data.append(current_chunk)
                 current_chunk = []
@@ -28,7 +43,7 @@ def process_data_list(data_list):
     # Add the last chunk if collecting has started and it hasn't been added yet
     if collecting and current_chunk:
         extracted_data.append(current_chunk)
-
+        
     return extracted_data
 
 if __name__ == "__main__":
