@@ -5,20 +5,6 @@ from xlsxReader import *
 from itemExtract import *
 import Item
 
-# Sample data with 10 items
-data = [
-    {"name": "Item 1", "category": "Category 1", "price": "100", "details": "Details of Item 1"},
-    {"name": "Item 2", "category": "Category 1", "price": "150", "details": "Details of Item 2"},
-    {"name": "Item 3", "category": "Category 2", "price": "200", "details": "Details of Item 3"},
-    {"name": "Item 4", "category": "Category 2", "price": "250", "details": "Details of Item 4"},
-    {"name": "Item 5", "category": "Category 3", "price": "300", "details": "Details of Item 5"},
-    {"name": "Item 6", "category": "Category 3", "price": "350", "details": "Details of Item 6"},
-    {"name": "Item 7", "category": "Category 4", "price": "400", "details": "Details of Item 7"},
-    {"name": "Item 8", "category": "Category 4", "price": "450", "details": "Details of Item 8"},
-    {"name": "Item 9", "category": "Category 5", "price": "500", "details": "Details of Item 9"},
-    {"name": "Item 10", "category": "Category 5", "price": "550", "details": "Details of Item 10"},
-]
-
 # Search function that filters data based on the first dropdown selection
 def search():
     # get current menu selection
@@ -55,29 +41,36 @@ def search():
                 continue
             feature_label = item[feature][1].split(":",1)[0]
             feature_values = [item[feature][1].split(":",1)[1] for item in refined_item]
-            feature_list.append([feature_label,feature_values])
+            
+            # remove repeated entry
+            temp_set = set()
+            feature_values = [x for x in feature_values if x not in temp_set and (temp_set.add(x) or True)]
+            
+            feature_list.append([f"--{feature_label}--",feature_values])
     except:
         ...
 
 
-    
+    # put feature into drop-down menuss
     for menu_num in range(1,5-1):
         if menu_num > len(feature_list)-1:
             break
-        if str(dropdown_menus[menu_num]["state"]) == "disabled":
+        if str(dropdown_menus[menu_num]["state"]) == "disabled": # only update drop-down menu while it is in disabled state
             feature_label = feature_list[menu_num][0]
             feature_values = feature_list[menu_num][1]
-            feature_values.insert(0,f"--{feature_label}--")
+            feature_values.insert(0,feature_label)
             dropdown_menus[menu_num]["values"] = feature_values
             dropdown_menus[menu_num].set(feature_values[0])
             dropdown_menus[menu_num].config(state="enabled")
             
-            next_refined_item = []
-            for each_item in refined_item:
-                each_feature = each_item[3-1+menu_num][1].split(":",1)[1]
-                if (each_feature == dropdown_menus[menu_num].get()) or (each_feature == list(item_types)[0]):
-                    next_refined_item.append(each_item)
-            refined_item = next_refined_item
+        next_refined_item = []
+        for each_item in refined_item:
+            each_feature = each_item[3+menu_num][1].split(":",1)[1]
+            a = each_feature
+            b = dropdown_menus[menu_num].get()
+            if (each_feature == dropdown_menus[menu_num].get()) or (dropdown_menus[menu_num].get() == feature_list[menu_num][0]):
+                next_refined_item.append(each_item)
+        refined_item = next_refined_item
     
     item_objects = [] # list to be added to the refreshed table in frame 2.
     for each_item in refined_item:
